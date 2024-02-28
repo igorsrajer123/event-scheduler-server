@@ -2,6 +2,8 @@ import express, { Application } from "express";
 import dotenv from "dotenv";
 
 import connectDB from "@src/db";
+import applyMiddleware from "@src/middleware";
+
 import { router as userRouter } from "@src/routes/user-routes";
 
 dotenv.config();
@@ -14,5 +16,6 @@ app.listen(port, () => {
 });
 
 connectDB();
+applyMiddleware(app);
 
 app.use("/user", userRouter);
