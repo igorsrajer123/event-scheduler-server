@@ -1,13 +1,13 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const userRoutes = require("./routes/user-routes");
+import express, { Application } from "express";
+import dotenv from "dotenv";
 
-const connectDB = require("./db");
+import connectDB from "@src/db";
+import { router as userRouter } from "@src/routes/user-routes";
 
 dotenv.config();
 
-const app = express();
-const port = process.env.LOCALHOST_SERVER_PORT;
+const app: Application = express();
+const port = parseInt(process.env.LOCALHOST_SERVER_PORT || "3000");
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost: ${port}`);
@@ -15,4 +15,4 @@ app.listen(port, () => {
 
 connectDB();
 
-app.use("/user", userRoutes);
+app.use("/user", userRouter);

@@ -1,6 +1,8 @@
-const userService = require("./../services/user-service");
+import { Request, Response } from "express";
 
-const getAllUsers = async (req: any, res: any) => {
+import userService from "src/services/user-service";
+
+const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await userService.getAllUsers();
 
@@ -18,4 +20,4 @@ const addUser = async (req: any, res: any) => {
   res.status(200).json({ message: "User added!" });
 };
 
-module.exports = { getAllUsers, addUser };
+export default { getAllUsers, addUser };

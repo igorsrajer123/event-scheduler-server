@@ -1,6 +1,6 @@
-const userRepository = require("./../data-access/user-repository");
+import userRepository from "./../data-access/user-repository";
 
-const getAllUsers = async (req: any, res: any) => {
+const getAllUsers = async () => {
   const users = await userRepository.getAllUsers();
   return users;
 };
@@ -9,4 +9,4 @@ const addUser = async () => {
   await userRepository.addUser();
 };
 
-module.exports = { getAllUsers, addUser };
+export default { getAllUsers, addUser };

@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const connectDB = async () => {
+export default async () => {
   try {
     await mongoose.connect(
       `mongodb://localhost:${process.env.LOCALHOST_DB_PORT}/scheduler-app-database`
@@ -10,5 +10,3 @@ const connectDB = async () => {
     console.error("MongoDB connection error:", error);
   }
 };
-
-module.exports = connectDB;

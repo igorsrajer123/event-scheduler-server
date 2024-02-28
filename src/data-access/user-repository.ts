@@ -1,4 +1,4 @@
-const User = require("./../models/user-model");
+import User from "src/models/user-model";
 
 const getAllUsers = async () => {
   console.log("GET ALL USERS HITR");
@@ -22,4 +22,4 @@ const addUser = async () => {
     });
 };
 
-module.exports = { getAllUsers, addUser };
+export default { addUser, getAllUsers };
