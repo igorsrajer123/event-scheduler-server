@@ -1,4 +1,4 @@
-import userRepository from "./../data-access/user-repository";
+import userRepository from "@src/data-access/user-repository";
 
 const getAllUsers = async () => {
   const users = await userRepository.getAllUsers();

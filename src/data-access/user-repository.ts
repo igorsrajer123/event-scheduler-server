@@ -1,4 +1,4 @@
-import User from "src/models/user-model";
+import User from "@src/models/user-model";
 
 const getAllUsers = async () => {
   console.log("GET ALL USERS HITR");
