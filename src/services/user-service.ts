@@ -1,20 +1,24 @@
 import userRepository from "@src/data-access/user-repository";
+import mongoose from "mongoose";
 
 const addUser = async (userData: any) => {
-  try {
-    // const existingUser = await userRepository.findUserByEmail(userData.email);
-    // if (existingUser) {
-    //   throw new Error("Email address already exists");
-    // }
-    return await userRepository.addUser(userData);
-  } catch (error) {
-    throw error;
-  }
+  return await userRepository.addUser(userData);
+};
+
+const getByEmail = async (email: string) => {
+  return await userRepository.getByEmail(email);
 };
 
 const getAllUsers = async () => {
-  const users = await userRepository.getAllUsers();
-  return users;
+  return await userRepository.getAllUsers();
 };
 
-export default { getAllUsers, addUser };
+const getById = async (id: mongoose.Types.ObjectId) => {
+  return await userRepository.getById(id);
+};
+
+const updatePassword = async (id: string, password: string) => {
+  return await userRepository.updatePassword(id, password);
+};
+
+export default { getAllUsers, addUser, getByEmail, getById, updatePassword };

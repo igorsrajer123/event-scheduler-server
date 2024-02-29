@@ -2,21 +2,17 @@ import { Schema, model } from "mongoose";
 
 const userSchema: Schema = new Schema(
   {
+    _id: {
+      type: String,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
-      validate: {
-        validator: (email: string) => {
-          const emailRegex = /\S+@\S+\.\S+/;
-          return emailRegex.test(email);
-        },
-        message: (props: any) => `${props.value} is not a valid email address!`,
-      },
     },
-    password: { type: String, required: true, minlength: 6 },
-    fullName: { type: String, required: true },
+    password: { type: String, required: true, minlength: 8 },
+    fullName: { type: String, required: true, minLength: 3 },
     phoneNumber: { type: String, required: true },
   },
   { collection: "User" }
