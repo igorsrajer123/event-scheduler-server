@@ -14,11 +14,8 @@ const getAllUsers = async () => {
   return await User.find();
 };
 
-const getById = async (id: mongoose.Types.ObjectId) => {
-  console.log(id);
-  const usr = await User.findById(id);
-  console.log(usr);
-  return usr;
+const getById = async (id: string) => {
+  return await User.findById(id);
 };
 
 const updatePassword = async (id: string, password: string) => {

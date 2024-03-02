@@ -13,7 +13,7 @@ const getAllUsers = async () => {
   return await userRepository.getAllUsers();
 };
 
-const getById = async (id: mongoose.Types.ObjectId) => {
+const getById = async (id: string) => {
   return await userRepository.getById(id);
 };
 

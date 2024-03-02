@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import connectDB from "@src/db";
 import applyMiddleware from "@src/middleware";
+import MailSender from "@src/mail-sender";
 
 import { router as userRouter } from "@src/routes/user-routes";
 
@@ -19,3 +20,8 @@ connectDB();
 applyMiddleware(app);
 
 app.use("/user", userRouter);
+
+export const mailSender = MailSender(
+  `${process.env.EMAIL_APP_ACCOUNT}`,
+  `${process.env.EMAIL_APP_PASSWORD}`
+);

@@ -4,7 +4,8 @@ import userController from "@src/controllers/user-controller";
 
 export const router: Router = express.Router();
 
-router.get("/get", userController.getAllUsers);
-router.post("/add", userController.addUser);
+router.get("/", userController.getAllUsers);
+router.post("/", userController.addUser);
 router.get("/:id", userController.getById);
 router.patch("/:id/password", userController.updatePassword);
+router.post("/password-reset", userController.resetPassword);

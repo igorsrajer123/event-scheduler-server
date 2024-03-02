@@ -1,8 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
 import userService from "@src/services/user-service";
 import { validateUser } from "@src/models/schema-validators/user-validator";
-import mongoose from "mongoose";
+
+import MailSender from "@src/mail-sender";
+import { mailSender } from "@src/server";
 
 const bcrypt = require("bcrypt");
 
@@ -45,9 +47,7 @@ const getById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const x = new mongoose.Types.ObjectId(id);
-    const user = await userService.getById(x);
-
+    const user = await userService.getById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -63,8 +63,7 @@ const updatePassword = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { newPassword, oldPassword } = req.body;
 
-    const x = new mongoose.Types.ObjectId(id);
-    const user = await userService.getById(x);
+    const user = await userService.getById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -74,8 +73,8 @@ const updatePassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Old password is incorrect" });
     }
 
-    if (oldPassword !== newPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ message: "You entered an old password" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -89,4 +88,40 @@ const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
-export default { getAllUsers, addUser, getById, updatePassword };
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userService.getByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const newPassword = Math.random().toString(36).slice(-8);
+
+    const mailData = {
+      from: "igorsrajer123@gmail.com",
+      to: "isapsw123@gmail.com", //change this
+      subject: "Password reset",
+      html: `<h3>Your new password:</h3><br/><b>${newPassword}</b>`,
+    };
+
+    const salt = await bcrypt.genSalt(10);
+    const password = await bcrypt.hash(newPassword, salt);
+    userService.updatePassword(user.id, password);
+
+    mailSender.sendMail(mailData, (err: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Error sending email" });
+      }
+
+      return res.status(200).json({
+        message: "Mail sent successfully!",
+      });
+    });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export default { getAllUsers, addUser, getById, updatePassword, resetPassword };
