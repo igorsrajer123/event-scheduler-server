@@ -17,8 +17,8 @@ const getById = async (id: string) => {
   return await userRepository.getById(id);
 };
 
-const updatePassword = async (id: string, password: string) => {
-  return await userRepository.updatePassword(id, password);
+const updatePassword = async (email: string, password: string) => {
+  return await userRepository.updatePassword(email, password);
 };
 
 export default { getAllUsers, addUser, getByEmail, getById, updatePassword };

@@ -1,31 +1,18 @@
 import { Request, Response } from "express";
 
 import userService from "@src/services/user-service";
-import { validateUser } from "@src/models/schema-validators/user-validator";
-
-import MailSender from "@src/mail-sender";
-import { mailSender } from "@src/server";
+import { validateToken } from "@src/utils/reset-password-utils";
 
 const bcrypt = require("bcrypt");
 
 const addUser = async (req: Request, res: Response) => {
-  const { error } = validateUser(req.body);
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
-  const user = await userService.getByEmail(req.body.email);
-  if (user) {
-    return res.status(400).send("User already exisits. Please sign in");
-  }
-
   try {
-    const { body } = req;
+    const { password } = req.body;
 
     const salt = await bcrypt.genSalt(10);
-    const password = await bcrypt.hash(body.password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = await userService.addUser({ ...body, password });
+    const newUser = await userService.addUser({ ...req.body, hashedPassword });
 
     return res.status(201).json(newUser);
   } catch (err: any) {
@@ -33,7 +20,7 @@ const addUser = async (req: Request, res: Response) => {
   }
 };
 
-const getAllUsers = async (_req: Request, res: Response) => {
+const getAll = async (_req: Request, res: Response) => {
   try {
     const users = await userService.getAllUsers();
 
@@ -46,8 +33,8 @@ const getAllUsers = async (_req: Request, res: Response) => {
 const getById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
     const user = await userService.getById(id);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -61,26 +48,12 @@ const getById = async (req: Request, res: Response) => {
 const updatePassword = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { newPassword, oldPassword } = req.body;
-
-    const user = await userService.getById(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Old password is incorrect" });
-    }
-
-    if (oldPassword === newPassword) {
-      return res.status(400).json({ message: "You entered an old password" });
-    }
+    const { newPassword } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const password = await bcrypt.hash(newPassword, salt);
 
-    await userService.updatePassword(user.id, password);
+    await userService.updatePassword(id, password);
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (err: any) {
@@ -88,40 +61,23 @@ const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
-export const resetPassword = async (req: Request, res: Response) => {
+const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
+    const { email, password, token } = req.body;
 
-    const user = await userService.getByEmail(email);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (validateToken(email, token, `${process.env.PASSWORD_RESET_SECRET}`)) {
+      const salt = await bcrypt.genSalt(10);
+      const newPassword = await bcrypt.hash(password, salt);
+
+      const response = await userService.updatePassword(email, newPassword);
+
+      return res.status(200).json({ response });
+    } else {
+      return res.status(400).json({ message: "Token validation failed" });
     }
-
-    const newPassword = Math.random().toString(36).slice(-8);
-
-    const mailData = {
-      from: "igorsrajer123@gmail.com",
-      to: "isapsw123@gmail.com", //change this
-      subject: "Password reset",
-      html: `<h3>Your new password:</h3><br/><b>${newPassword}</b>`,
-    };
-
-    const salt = await bcrypt.genSalt(10);
-    const password = await bcrypt.hash(newPassword, salt);
-    userService.updatePassword(user.id, password);
-
-    mailSender.sendMail(mailData, (err: any) => {
-      if (err) {
-        return res.status(500).json({ message: "Error sending email" });
-      }
-
-      return res.status(200).json({
-        message: "Mail sent successfully!",
-      });
-    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 };
 
-export default { getAllUsers, addUser, getById, updatePassword, resetPassword };
+export default { getAll, addUser, getById, updatePassword, resetPassword };

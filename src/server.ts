@@ -1,11 +1,11 @@
 import express, { Application } from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
 
 import connectDB from "@src/db";
-import applyMiddleware from "@src/middleware";
-import MailSender from "@src/mail-sender";
 
 import { router as userRouter } from "@src/routes/user-routes";
+import { router as mailRouter } from "@src/routes/mail-routes";
 
 dotenv.config();
 
@@ -17,11 +17,7 @@ app.listen(port, () => {
 });
 
 connectDB();
-applyMiddleware(app);
 
+app.use(bodyParser.json());
 app.use("/user", userRouter);
-
-export const mailSender = MailSender(
-  `${process.env.EMAIL_APP_ACCOUNT}`,
-  `${process.env.EMAIL_APP_PASSWORD}`
-);
+app.use("/mail", mailRouter);

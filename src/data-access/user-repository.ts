@@ -18,8 +18,8 @@ const getById = async (id: string) => {
   return await User.findById(id);
 };
 
-const updatePassword = async (id: string, password: string) => {
-  return await User.findByIdAndUpdate(id, { password });
+const updatePassword = async (email: string, password: string) => {
+  return await User.findOneAndUpdate({ email: email }, { password });
 };
 
 export default { addUser, getAllUsers, getByEmail, getById, updatePassword };

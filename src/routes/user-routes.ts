@@ -1,11 +1,21 @@
 import express, { Router } from "express";
 
 import userController from "@src/controllers/user-controller";
+import userMiddleware from "@src/middlewares/user-middleware";
 
 export const router: Router = express.Router();
 
-router.get("/", userController.getAllUsers);
-router.post("/", userController.addUser);
+router.get("/", userController.getAll);
 router.get("/:id", userController.getById);
-router.patch("/:id/password", userController.updatePassword);
-router.post("/password-reset", userController.resetPassword);
+router.post(
+  "/",
+  userMiddleware.validateAddUserSchema,
+  userMiddleware.userAlreadyExistsValidation,
+  userController.addUser
+);
+router.patch(
+  "/:id/password",
+  userMiddleware.updatePasswordValidation,
+  userController.updatePassword
+);
+router.post("/reset-password", userController.resetPassword);
