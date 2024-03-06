@@ -1,23 +1,26 @@
+import { User } from "@src/types/user-types";
 import userRepository from "@src/data-access/user-repository";
-import mongoose from "mongoose";
 
-const addUser = async (userData: any) => {
-  return await userRepository.addUser(userData);
-};
-
-const getByEmail = async (email: string) => {
-  return await userRepository.getByEmail(email);
-};
-
-const getAllUsers = async () => {
+const getAllUsers = async (): Promise<User[]> => {
   return await userRepository.getAllUsers();
 };
 
-const getById = async (id: string) => {
+const getById = async (id: string): Promise<User | null> => {
   return await userRepository.getById(id);
 };
 
-const updatePassword = async (email: string, password: string) => {
+const getByEmail = async (email: string): Promise<User | null> => {
+  return await userRepository.getByEmail(email);
+};
+
+const addUser = async (userData: User): Promise<User> => {
+  return await userRepository.addUser(userData);
+};
+
+const updatePassword = async (
+  email: string,
+  password: string
+): Promise<User | null> => {
   return await userRepository.updatePassword(email, password);
 };
 

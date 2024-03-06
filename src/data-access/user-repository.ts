@@ -1,25 +1,28 @@
-import User from "@src/models/user-model";
-import mongoose from "mongoose";
+import { User } from "@src/types/user-types";
+import UserModel from "@src/models/user-model";
 
-const addUser = async (userData: typeof User) => {
-  const newUser = new User(userData);
+const getAllUsers = async (): Promise<User[]> => {
+  return await UserModel.find();
+};
+
+const getById = async (id: string): Promise<User | null> => {
+  return await UserModel.findById(id);
+};
+
+const getByEmail = async (email: string): Promise<User | null> => {
+  return await UserModel.findOne({ email });
+};
+
+const addUser = async (userData: User): Promise<User> => {
+  const newUser = new UserModel(userData);
   return await newUser.save();
 };
 
-const getByEmail = async (email: string) => {
-  return await User.findOne({ email });
-};
-
-const getAllUsers = async () => {
-  return await User.find();
-};
-
-const getById = async (id: string) => {
-  return await User.findById(id);
-};
-
-const updatePassword = async (email: string, password: string) => {
-  return await User.findOneAndUpdate({ email: email }, { password });
+const updatePassword = async (
+  email: string,
+  password: string
+): Promise<User | null> => {
+  return await UserModel.findOneAndUpdate({ email }, { password });
 };
 
 export default { addUser, getAllUsers, getByEmail, getById, updatePassword };

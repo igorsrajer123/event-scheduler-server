@@ -1,19 +1,21 @@
 import { Request, Response } from "express";
 
 import MailSender from "@src/mail-sender";
-import userService from "@src/services/user-service";
+import { User } from "@src/types/user-types";
 import { generateToken } from "@src/utils/reset-password-utils";
 
-const sendResetPasswordMail = async (req: Request, res: Response) => {
+//minutes
+const TOKEN_EXPIRES_IN = 5;
+
+const sendResetPasswordMail = async (_req: Request, res: Response) => {
   try {
-    const { email } = req.body;
+    const user: User = res.locals.user;
 
-    const user = await userService.getByEmail(email);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const token = generateToken(email, `${process.env.PASSWORD_RESET_SECRET}`);
+    const token = generateToken(
+      user.email,
+      `${process.env.PASSWORD_RESET_SECRET}`,
+      TOKEN_EXPIRES_IN
+    );
 
     const mailSender = MailSender(
       `${process.env.EMAIL_APP_ACCOUNT}`,
@@ -21,10 +23,10 @@ const sendResetPasswordMail = async (req: Request, res: Response) => {
     );
 
     const mailData = {
-      from: "igorsrajer123@gmail.com",
-      to: email,
+      from: `${process.env.EMAIL_APP_ACCOUNT}`,
+      to: user.email,
       subject: "Password reset",
-      html: `<b>Reset your password here:</b> <a href="http://localhost:3000/reset-password?token=${token}&email=${email}">password reset form<3</a>`,
+      html: `<b>Reset your password here:</b> <a href="http://localhost:3000/reset-password?token=${token}&email=${user.email}">password reset form<3</a>`,
     };
 
     mailSender.sendMail(mailData, (err: any) => {
@@ -36,8 +38,6 @@ const sendResetPasswordMail = async (req: Request, res: Response) => {
         message: "Mail sent successfully!",
       });
     });
-
-    // mailSender.close();
   } catch (err: any) {
     return res.status(500).json({ message: err.message });
   }

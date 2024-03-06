@@ -1,93 +1,101 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
+import Joi from "joi";
 
-import {
-  addUserSchema,
-  resetPasswordSchema,
-} from "@src/request-validators/user-schema-validators";
+import { User } from "@src/types/user-types";
 import userService from "@src/services/user-service";
 
 const bcrypt = require("bcrypt");
 
-const validateAddUserSchema = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { error } = addUserSchema.validate(req.body);
+const validateRequestSchema = (schema: Joi.Schema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      return res.status(400).send({ message: error.details[0].message });
+    }
 
-  if (error) {
-    return res.status(400).send({ message: error.details[0].message });
-  }
-
-  next();
+    next();
+  };
 };
 
-const userAlreadyExistsValidation = async (
+const checkUserExistsByEmail = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { email } = req.body;
-  const user = await userService.getByEmail(email);
 
+  const user: User | null = await userService.getByEmail(email);
   if (user) {
     return res
       .status(400)
-      .send({ message: "User already exisits. Please sign in" });
+      .send({ message: "User already exists. Please sign in." });
   }
 
   next();
 };
 
-const updatePasswordValidation = async (
+const checkUserNotFoundByEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.params;
+
+  const user = await userService.getByEmail(email);
+  if (!user) {
+    return res.status(404).send({ message: "User not found." });
+  }
+
+  res.locals.user = user;
+  next();
+};
+
+const checkUserNotFoundById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const { newPassword, oldPassword } = req.body;
 
-  const user = await userService.getById(id);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
+
+  const user: User | null = await userService.getById(id);
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).send({ message: "User not found." });
   }
 
-  const isMatch = await bcrypt.compare(oldPassword, user.password);
-  if (!isMatch) {
-    return res.status(400).json({ message: "Old password is incorrect" });
-  }
-
-  if (oldPassword === newPassword) {
-    return res.status(400).json({ message: "You entered an old password" });
-  }
-
+  res.locals.user = user;
   next();
 };
 
-const resetPasswordValidation = async (
+const comparePasswords = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { error } = resetPasswordSchema.validate(req.body);
+  const user: User = res.locals.user;
+  const { newPassword, oldPassword } = req.body;
 
-  if (error) {
-    return res.status(400).send({ message: error.details[0].message });
+  const isOldPassValid = await bcrypt.compare(oldPassword, user.password);
+  if (!isOldPassValid) {
+    return res.status(400).json({ message: "Old password is incorrect." });
   }
 
-  const { email } = req.body;
-
-  const user = await userService.getByEmail(email);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  const isNewPassInvalid = await bcrypt.compare(newPassword, user.password);
+  if (isNewPassInvalid) {
+    return res.status(400).json({ message: "You entered an old password." });
   }
 
   next();
 };
 
 export default {
-  validateAddUserSchema,
-  userAlreadyExistsValidation,
-  updatePasswordValidation,
-  resetPasswordValidation,
+  validateRequestSchema,
+  checkUserExistsByEmail,
+  checkUserNotFoundById,
+  checkUserNotFoundByEmail,
+  comparePasswords,
 };

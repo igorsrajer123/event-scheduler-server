@@ -2,20 +2,36 @@ import express, { Router } from "express";
 
 import userController from "@src/controllers/user-controller";
 import userMiddleware from "@src/middlewares/user-middleware";
+import {
+  addUserRequestSchema,
+  resetPasswordRequestSchema,
+  updatePasswordRequestSchema,
+} from "@src/request-validators/user-requests-validators";
 
 export const router: Router = express.Router();
 
 router.get("/", userController.getAll);
-router.get("/:id", userController.getById);
+router.get(
+  "/:id",
+  userMiddleware.checkUserNotFoundById,
+  userController.getById
+);
 router.post(
   "/",
-  userMiddleware.validateAddUserSchema,
-  userMiddleware.userAlreadyExistsValidation,
+  userMiddleware.validateRequestSchema(addUserRequestSchema),
+  userMiddleware.checkUserExistsByEmail,
   userController.addUser
 );
 router.patch(
-  "/:id/password",
-  userMiddleware.updatePasswordValidation,
+  "/:email/password",
+  userMiddleware.validateRequestSchema(updatePasswordRequestSchema),
+  userMiddleware.checkUserNotFoundByEmail,
+  userMiddleware.comparePasswords,
   userController.updatePassword
 );
-router.post("/reset-password", userController.resetPassword);
+router.post(
+  "/:email/reset-password",
+  userMiddleware.validateRequestSchema(resetPasswordRequestSchema),
+  userMiddleware.checkUserNotFoundByEmail,
+  userController.resetPassword
+);
