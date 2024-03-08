@@ -18,6 +18,13 @@ const addUser = async (userData: User): Promise<User> => {
   return await newUser.save();
 };
 
+const updateUser = async (
+  id: string,
+  userData: Pick<User, "fullName" | "phoneNumber">
+): Promise<User | null> => {
+  return await UserModel.findByIdAndUpdate(id, { ...userData });
+};
+
 const updatePassword = async (
   email: string,
   password: string
@@ -25,4 +32,11 @@ const updatePassword = async (
   return await UserModel.findOneAndUpdate({ email }, { password });
 };
 
-export default { addUser, getAllUsers, getByEmail, getById, updatePassword };
+export default {
+  addUser,
+  getAllUsers,
+  getByEmail,
+  getById,
+  updatePassword,
+  updateUser,
+};

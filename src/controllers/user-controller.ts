@@ -48,6 +48,23 @@ const addUser = async (req: Request, res: Response) => {
   }
 };
 
+const updateUser = async (req: Request, res: Response) => {
+  try {
+    const user: User = res.locals.user;
+
+    const updatedUser: User | null = await userService.updateUser(
+      user.id,
+      req.body
+    );
+
+    const userDto = updatedUser ? MapUserToDto(updatedUser) : null;
+
+    return res.status(updatedUser ? 201 : 404).json(userDto);
+  } catch (err: any) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
 const updatePassword = async (req: Request, res: Response) => {
   try {
     const user: User = res.locals.user;
@@ -87,4 +104,11 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export default { getAll, addUser, getById, updatePassword, resetPassword };
+export default {
+  getAll,
+  addUser,
+  getById,
+  updatePassword,
+  resetPassword,
+  updateUser,
+};

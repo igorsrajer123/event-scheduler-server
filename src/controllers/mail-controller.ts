@@ -4,17 +4,13 @@ import MailSender from "@src/mail-sender";
 import { User } from "@src/types/user-types";
 import { generateToken } from "@src/utils/reset-password-utils";
 
-//minutes
-const TOKEN_EXPIRES_IN = 5;
-
 const sendResetPasswordMail = async (_req: Request, res: Response) => {
   try {
     const user: User = res.locals.user;
 
     const token = generateToken(
       user.email,
-      `${process.env.PASSWORD_RESET_SECRET}`,
-      TOKEN_EXPIRES_IN
+      `${process.env.PASSWORD_RESET_SECRET}`
     );
 
     const mailSender = MailSender(

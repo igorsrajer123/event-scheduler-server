@@ -3,7 +3,7 @@ const crypto = require("crypto");
 export function generateToken(
   email: string,
   secret: string,
-  expiresInMinutes: number
+  expiresInMinutes: number = 15
 ) {
   const expiration = Date.now() + expiresInMinutes * 60 * 1000;
   const payload = { email, expiration };

@@ -6,6 +6,7 @@ import {
   addUserRequestSchema,
   resetPasswordRequestSchema,
   updatePasswordRequestSchema,
+  updateUserRequestSchema,
 } from "@src/request-validators/user-requests-validators";
 
 export const router: Router = express.Router();
@@ -30,8 +31,14 @@ router.patch(
   userController.updatePassword
 );
 router.post(
-  "/:email/reset-password",
+  "/:email/password",
   userMiddleware.validateRequestSchema(resetPasswordRequestSchema),
   userMiddleware.checkUserNotFoundByEmail,
   userController.resetPassword
+);
+router.put(
+  "/:id",
+  userMiddleware.validateRequestSchema(updateUserRequestSchema),
+  userMiddleware.checkUserNotFoundById,
+  userController.updateUser
 );

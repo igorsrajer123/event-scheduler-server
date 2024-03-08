@@ -7,6 +7,11 @@ export const addUserRequestSchema = Joi.object({
   phoneNumber: Joi.string().trim().required(),
 });
 
+export const updateUserRequestSchema = Joi.object({
+  fullName: Joi.string().min(3).trim().required(),
+  phoneNumber: Joi.string().trim().required(),
+});
+
 export const updatePasswordRequestSchema = Joi.object({
   oldPassword: Joi.string().min(8).trim().required(),
   newPassword: Joi.string().min(8).trim().required(),

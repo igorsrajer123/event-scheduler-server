@@ -17,6 +17,13 @@ const addUser = async (userData: User): Promise<User> => {
   return await userRepository.addUser(userData);
 };
 
+const updateUser = async (
+  id: string,
+  userData: Pick<User, "fullName" | "phoneNumber">
+): Promise<User | null> => {
+  return await userRepository.updateUser(id, userData);
+};
+
 const updatePassword = async (
   email: string,
   password: string
@@ -24,4 +31,11 @@ const updatePassword = async (
   return await userRepository.updatePassword(email, password);
 };
 
-export default { getAllUsers, addUser, getByEmail, getById, updatePassword };
+export default {
+  getAllUsers,
+  addUser,
+  getByEmail,
+  getById,
+  updatePassword,
+  updateUser,
+};
