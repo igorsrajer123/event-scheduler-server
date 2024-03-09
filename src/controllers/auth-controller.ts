@@ -46,86 +46,36 @@ const refreshAccessToken = (req: Request, res: Response) => {
       return res.status(401).json({ message: "Access token is revoked." });
     }
 
-    jwt.verify(
+    const decoded = jwt.verify(
       oldRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-      (err: any, decoded: { [key: string]: any }) => {
-        if (err) {
-          return res.status(403).json({ message: "Invalid refresh token." });
-        }
-
-        const accessToken = generateAuthToken(decoded);
-        const refreshToken = generateAuthToken(decoded, true);
-
-        invalidateAuthTokens(decoded.id, tokensBlacklist);
-        addTokensToBlacklist(tokensBlacklist, accessToken, refreshToken);
-
-        return res.status(200).json({ accessToken, refreshToken });
-      }
+      process.env.REFRESH_TOKEN_SECRET
     );
+
+    const accessToken = generateAuthToken(decoded);
+    const refreshToken = generateAuthToken(decoded, true);
+
+    invalidateAuthTokens(decoded.id, tokensBlacklist);
+    addTokensToBlacklist(tokensBlacklist, accessToken, refreshToken);
+
+    return res.status(200).json({ accessToken, refreshToken });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 };
 
-const me = (req: Request, res: Response) => {
+const me = (_req: Request, res: Response) => {
   try {
-    const authHeader = req.headers["authorization"];
-    const accessToken = authHeader && authHeader.split(" ")[1];
-
-    if (!accessToken) {
-      return res.status(401).json({ message: "Access token is required." });
-    }
-
-    if (!tokensBlacklist.has(accessToken!)) {
-      return res.status(401).json({ message: "Access token is revoked." });
-    }
-
-    jwt.verify(
-      accessToken,
-      process.env.ACCESS_TOKEN_SECRET,
-      (err: any, decoded: { [key: string]: any }) => {
-        if (err) {
-          return res.status(403).json({ message: "Invalid access token." });
-        }
-
-        const { id, email } = decoded;
-        return res.status(200).json({ id, email });
-      }
-    );
+    const { id, email } = res.locals.decoded;
+    return res.status(200).json({ id, email });
   } catch (err: any) {
     return res.status(500).json({ message: err.message });
   }
 };
 
-const signOut = (req: Request, res: Response) => {
+const signOut = (_req: Request, res: Response) => {
   try {
-    const authHeader = req.headers["authorization"];
-    const accessToken = authHeader && authHeader.split(" ")[1];
-
-    if (!accessToken) {
-      return res.status(401).json({ message: "Access token is required" });
-    }
-
-    if (!tokensBlacklist.has(accessToken!)) {
-      return res.status(401).json({ message: "Access token is revoked" });
-    }
-
-    jwt.verify(
-      accessToken,
-      process.env.ACCESS_TOKEN_SECRET,
-      (err: any, decoded: { [key: string]: any }) => {
-        if (err) {
-          return res.status(403).json({ message: "Invalid access token." });
-        }
-
-        invalidateAuthTokens(decoded.id, tokensBlacklist);
-
-        return res
-          .status(200)
-          .json({ message: "User logged out successfully." });
-      }
-    );
+    invalidateAuthTokens(res.locals.decoded.id, tokensBlacklist);
+    return res.status(200).json({ message: "User logged out successfully." });
   } catch (err: any) {
     return res.status(500).json({ message: err.message });
   }

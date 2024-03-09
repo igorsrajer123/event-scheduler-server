@@ -97,7 +97,9 @@ const resetPassword = async (req: Request, res: Response) => {
         .status(200)
         .json({ message: "Password updated successfully." });
     } else {
-      return res.status(400).json({ message: "Token validation failed" });
+      return res
+        .status(400)
+        .json({ message: "Password token validation failed." });
     }
   } catch (err: any) {
     res.status(500).json({ message: err.message });

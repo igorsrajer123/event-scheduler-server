@@ -71,6 +71,7 @@ const checkUserNotFoundById = async (
   next();
 };
 
+//Refactor this function
 const comparePasswords = async (
   req: Request,
   res: Response,
