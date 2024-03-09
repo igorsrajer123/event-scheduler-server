@@ -7,6 +7,7 @@ import userService from "@src/services/user-service";
 import { validateToken } from "@src/utils/reset-password-utils";
 import { hashPassword } from "@src/utils/hash-password-utils";
 import { MapUserToDto } from "@src/mappers/user-mappers";
+import { Role } from "@src/models/user-model";
 
 const getAll = async (_req: Request, res: Response) => {
   try {
@@ -37,6 +38,8 @@ const addUser = async (req: Request, res: Response) => {
     const hashedPassword = await hashPassword(password);
     const newUser: User = await userService.addUser({
       ...req.body,
+      active: true,
+      role: Role.USER,
       password: hashedPassword,
     });
 

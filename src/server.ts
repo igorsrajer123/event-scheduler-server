@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import { Mongoose } from "mongoose";
 import Redis from "ioredis";
 
+import seedDatabase from "@src/seeder/seeder";
 import { connectDb, disconnectDb } from "@src/db";
 import { connectRedis, disconnectRedis } from "@src/redis";
 
@@ -26,6 +27,8 @@ const server = app.listen(port, async () => {
 
   mongoClient = await connectDb();
   redisClient = connectRedis();
+
+  seedDatabase();
 
   await populateBlackList(tokensBlacklist);
 

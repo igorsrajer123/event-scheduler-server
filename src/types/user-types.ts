@@ -1,3 +1,4 @@
+import { Role } from "@src/models/user-model";
 import { Document } from "mongoose";
 
 export type User = Document & {
@@ -6,6 +7,8 @@ export type User = Document & {
   password: string;
   fullName: string;
   phoneNumber: string;
+  active: boolean;
+  role: Role;
 };
 
 export type UserDto = {
@@ -13,11 +16,6 @@ export type UserDto = {
   email: string;
   fullName: string;
   phoneNumber: string;
-};
-
-export type AddUserDto = {
-  email: string;
-  password: string;
-  fullName: string;
-  phoneNumber: string;
+  active: boolean;
+  role: Role;
 };
