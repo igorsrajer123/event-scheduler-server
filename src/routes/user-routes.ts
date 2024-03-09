@@ -24,14 +24,14 @@ router.post(
   userController.addUser
 );
 router.patch(
-  "/:email/password",
+  "/password",
   userMiddleware.validateRequestSchema(updatePasswordRequestSchema),
   userMiddleware.checkUserNotFoundByEmail,
   userMiddleware.comparePasswords,
   userController.updatePassword
 );
 router.post(
-  "/:email/password",
+  "/password-reset",
   userMiddleware.validateRequestSchema(resetPasswordRequestSchema),
   userMiddleware.checkUserNotFoundByEmail,
   userController.resetPassword

@@ -6,7 +6,7 @@ import userMiddleware from "@src/middlewares/user-middleware";
 export const router: Router = express.Router();
 
 router.post(
-  "/:email/reset-password",
-  userMiddleware.checkUserNotFoundByEmail,
+  "/:id/password-reset",
+  userMiddleware.checkUserNotFoundById,
   mailController.sendResetPasswordMail
 );

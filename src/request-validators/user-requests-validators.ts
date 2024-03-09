@@ -13,11 +13,13 @@ export const updateUserRequestSchema = Joi.object({
 });
 
 export const updatePasswordRequestSchema = Joi.object({
+  email: Joi.string().required().email(),
   oldPassword: Joi.string().min(8).trim().required(),
   newPassword: Joi.string().min(8).trim().required(),
 });
 
 export const resetPasswordRequestSchema = Joi.object({
+  email: Joi.string().required().email(),
   password: Joi.string().min(8).trim().required(),
   token: Joi.string().trim().required(),
 });

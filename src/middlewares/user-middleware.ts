@@ -40,7 +40,7 @@ const checkUserNotFoundByEmail = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.params;
+  const { email } = req.body;
 
   const user = await userService.getByEmail(email);
   if (!user) {
@@ -59,7 +59,7 @@ const checkUserNotFoundById = async (
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid user ID" });
+    return res.status(400).json({ message: "Invalid user ID." });
   }
 
   const user: User | null = await userService.getById(id);
